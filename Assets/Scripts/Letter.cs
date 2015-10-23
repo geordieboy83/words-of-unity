@@ -47,14 +47,14 @@ public class Letter : MonoBehaviour {
     {
         while (true)
         {
-            myBubble.GetComponent<Rigidbody>().AddForce(Random.insideUnitSphere * 10.0f);
+            myBubble.GetComponent<Rigidbody>().AddForce(Random.insideUnitCircle * 10.0f);
             yield return new WaitForSeconds(Random.Range(0.5f, 2.5f));
         }
 
     }
 
     void Update/*Soaring*/ () {
-        Vector3 bubbleRotation = bubbleAxis * ((Time.time * rotationFactor) % 360);
+        Vector3 bubbleRotation = bubbleAxis * ((Time.time * rotationFactor) /*% 360*/);
         myBubble.transform.rotation = Quaternion.Euler(bubbleRotation.x,bubbleRotation.y,bubbleRotation.z);
         /*try
         {
