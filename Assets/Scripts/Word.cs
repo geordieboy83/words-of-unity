@@ -9,12 +9,17 @@ public class Word : MonoBehaviour {
     public Vector2 originInRatio = new Vector2(0.5f, 0);
     protected bool scattered = false;
     protected List<Vector4> scatteredLetters=new List<Vector4>();
+    public float maxFreeze = 5f;
+    public int maxWordLength = 15;
+    public AudioClip[] startSFX, popSFX;
 
     // Use this for initialization
     IEnumerator Start () {
         if (word == "" || !letterPrefab) yield break;
         Vector3 origin = Camera.main.ScreenToWorldPoint(new Vector3(originInRatio.x * Screen.width, originInRatio.y * Screen.height));
         origin.z = 0;
+        List<Vector3> positionCircular = new List<Vector3>(), positionHorizontal = new List<Vector3>();
+
         for (int i =0; i<word.Length; i++)
         {
             GameObject letter = Instantiate(letterPrefab);
@@ -28,12 +33,37 @@ public class Word : MonoBehaviour {
                 (word.Length * width * 1.5f / (2 * Mathf.PI)) * 
                     new Vector3(Mathf.Sin(i * 2*Mathf.PI / word.Length), Mathf.Cos(i * 2 * Mathf.PI / word.Length), 0);
             newPosition.z = 0;
+            positionCircular.Add(new Vector3(newPosition.x, newPosition.y, i));
+            positionHorizontal.Add(
+                new Vector3(
+                    origin.x + (i - word.Length / 2) * width + (word.Length % 2 == 0 ? 0.5f * width : 0),
+                    word.Length * width * 1.5f / (2 * Mathf.PI),
+                    i));
             letter.transform.position =
                 //origin; 
                 //new Vector3(origin.x + (i - wordCStyle.Length / 2) * width+(wordCStyle.Length % 2==0?0.5f*width:0), origin.y, 0);
                 newPosition;
 
+            l.freezeSeconds = maxFreeze *word.Length/ (float)maxWordLength;
+            try
+            {
+                l.SFXAppear = startSFX[Random.Range(0, startSFX.Length)];
+                if (i == word.Length - 1)
+                    l.SFXPop = popSFX[0];
+                else
+                    l.SFXPop = popSFX[Random.Range(1, popSFX.Length)];
+            }
+            catch { }
 
+            for(int j=i-1; j>=0; j--)
+            {
+                l.returnTrail.Add(positionCircular[j]);
+                
+            }
+            if (i > word.Length/2)
+                l.returnTrail.RemoveAt(l.returnTrail.Count-1);
+            
+            l.returnTrail.Add(positionHorizontal[i]);
             yield return new WaitForSeconds(l.animationLength / 2);
         }
         
@@ -63,8 +93,9 @@ public class Word : MonoBehaviour {
         scatteredLetters.Sort(CompareHorizontal);
         if (Check())
         {
-            Debug.Log("Horizontal");
-            OnCorrect();
+            //Debug.Log("Horizontal");
+            //OnCorrect();
+            StartCoroutine("OnCorrect");
             return;
         }
         /*scatteredLetters.Sort(CompareTopDown);
@@ -83,13 +114,29 @@ public class Word : MonoBehaviour {
         }*/
     }
 
-    public void OnCorrect()
+    public IEnumerator OnCorrect()
     {
         for (int i = 0; i < transform.childCount; i++)
         {
             transform.GetChild(i).GetComponent<Letter>().Return();
             //.GetComponent<Rigidbody>().isKinematic = true;
         }
+        while (transform.GetChild(transform.childCount - 1).GetComponent<Letter>().myState != Letter.LetterState.TheEnd)
+        {           
+            yield return null;
+        }
+
+        yield return new WaitForSeconds(2);
+        for (int i = 0; i < transform.childCount-1; i++)
+        {
+            Letter l = transform.GetChild(i).GetComponent<Letter>();
+            l.Pop();
+            yield return new WaitForSeconds(l.animationLength / 2);
+            //.GetComponent<Rigidbody>().isKinematic = true;
+        }
+        Letter finalL= transform.GetChild(transform.childCount-1).GetComponent<Letter>();
+        yield return new WaitForSeconds(2*finalL.animationLength);
+        finalL.Pop();
     }
 
     public bool Check()

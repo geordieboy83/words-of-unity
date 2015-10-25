@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Letter : MonoBehaviour {
-    public enum LetterState { Appearing, Soaring, Frozen, Returning};
+    public enum LetterState { Appearing, Soaring, Frozen, Returning, TheEnd};
     public Word myWord;
     public TextMesh myText;
     public MeshRenderer myBubble;
@@ -15,6 +16,9 @@ public class Letter : MonoBehaviour {
     public float animationLength = 1f;
     protected Vector3 spawnPosition;
     public float freezeSeconds = 5f;
+    public List<Vector2> returnTrail=new List<Vector2>();
+    public AudioClip SFXAppear, SFXPop;
+    protected AudioSource myAudio;
 
     // Use this for initialization
     void Start () {
@@ -26,6 +30,12 @@ public class Letter : MonoBehaviour {
         myBubble.material.SetColor("_MKGlowColor", bubbleColor);
         myBubble.material.SetColor("_MKGlowTexColor", new Color(bubbleColor.r, bubbleColor.g, bubbleColor.b, shaderAlpha));
         spawnPosition = transform.position;
+        myAudio = GetComponent<AudioSource>();
+        if (SFXAppear && myAudio)
+        {
+            myAudio.clip = SFXAppear;
+            myAudio.Play();
+        }
         StartCoroutine("UpdateAppearing");
     }
 	
@@ -59,7 +69,18 @@ public class Letter : MonoBehaviour {
             transform.position = Vector3.Lerp(endPosition, spawnPosition, (Time.time - start) / animationLength);           
             yield return null;
         }
-
+        
+        for(int i=0; i < returnTrail.Count; i++)
+        {
+            start = Time.time;
+            Vector3 currentPosition = transform.position;
+            while (Time.time < start + animationLength)
+            {
+                transform.position = Vector3.Lerp(currentPosition, returnTrail[i], (Time.time - start) / animationLength);
+                yield return null;
+            }
+        }
+        myState = LetterState.TheEnd;        
         yield break;
     }
 
@@ -74,17 +95,9 @@ public class Letter : MonoBehaviour {
 
     }
 
-    void Update/*Soaring*/ () {
-        Vector3 bubbleRotation = bubbleAxis * ((Time.time * rotationFactor) /*% 360*/);
-        myBubble.transform.rotation = Quaternion.Euler(bubbleRotation.x,bubbleRotation.y,bubbleRotation.z);
-        /*try
-        {
-            myBubble.material.SetColor("_RimColor", bubbleColor);
-            myBubble.material.SetColor("_MKGlowColor", bubbleColor);
-            myBubble.material.SetColor("_MKGlowTexColor", new Color(bubbleColor.r, bubbleColor.g, bubbleColor.b, shaderAlpha));
-
-        }
-        catch { }*/
+    void Update () {
+        Vector3 bubbleRotation = bubbleAxis * ((Time.time * rotationFactor));
+        myBubble.transform.rotation = Quaternion.Euler(bubbleRotation.x,bubbleRotation.y,bubbleRotation.z);        
 	}
 
     void LateUpdate()
@@ -95,6 +108,11 @@ public class Letter : MonoBehaviour {
     public void OnMouseDown()
     {
         //Debug.Log("OnMouseDown");
+        if (myState == LetterState.Frozen)
+        {
+            StopCoroutine("Freeze");
+            Unfreeze();
+        }
     }
 
     public void OnMouseDrag()
@@ -161,5 +179,18 @@ public class Letter : MonoBehaviour {
     {
         myBubble.GetComponent<Rigidbody>().isKinematic = false;
         myState = LetterState.Soaring;
+    }
+
+    public void Pop()
+    {
+        if (myAudio && SFXPop)
+        {
+            myAudio.clip = SFXPop;
+            myAudio.Play();
+        }
+
+        myBubble.enabled = false;
+        myText.gameObject.SetActive(false);
+
     }
 }
