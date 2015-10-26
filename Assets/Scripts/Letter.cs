@@ -193,4 +193,14 @@ public class Letter : MonoBehaviour {
         myText.gameObject.SetActive(false);
 
     }
+
+    public bool IsEnded()
+    {
+        bool flag= myState == Letter.LetterState.TheEnd && !myBubble.enabled;
+        if(flag&& myAudio && myAudio.isPlaying)
+        {
+            flag = false;
+        }
+        return flag;
+    }
 }

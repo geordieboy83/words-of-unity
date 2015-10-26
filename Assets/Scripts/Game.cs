@@ -14,10 +14,12 @@ public class Game : MonoBehaviour {
     public int maxTotalLettersOnMultipleWords = 9;
     public Vector2[] wordSpawnPoints;
     protected int currentWordIndex = -1;
+    protected int currentChar = 0;
     protected List<string> words = new List<string>();
     protected bool gameOver = false;
     protected int textIndex = 0, musicIndex = 0;
-    protected AudioSource myAudio;
+    public AudioSource myMusic, mySpeech;
+    protected float gameTime, gameStart;
 
     
 
@@ -25,14 +27,16 @@ public class Game : MonoBehaviour {
 	void Start () {
         textIndex = UnityEngine.Random.Range(0, texts.Length);
         words.AddRange(texts[textIndex].text.Split(null));
-        myAudio = GetComponent<AudioSource>();
+        myMusic = GetComponent<AudioSource>();
         musicIndex = UnityEngine.Random.Range(0, backgroundMusic.Length);
+        gameStart = Time.time;
     }
 	
 
 	// Update is called once per frame
 	void Update () {
         if (gameOver) return;
+        gameTime = Time.time - gameStart;
         bool flag = true;
         foreach(Word w in currentWords)
         {
@@ -49,10 +53,10 @@ public class Game : MonoBehaviour {
             currentWords.Clear();
             MakeMultipleWords();
         }
-        if (myAudio && !myAudio.isPlaying)
+        if (myMusic && !myMusic.isPlaying)
         {
-            myAudio.clip = backgroundMusic[musicIndex++ % backgroundMusic.Length];
-            myAudio.Play();
+            myMusic.clip = backgroundMusic[musicIndex++ % backgroundMusic.Length];
+            myMusic.Play();
         }
 	
 	}
@@ -68,6 +72,7 @@ public class Game : MonoBehaviour {
             return false;
         }
 
+        currentChar += words[currentWordIndex].Length;
         string wordText = "";
         for(int i=0; i < words[currentWordIndex].Length; i++)
         {
@@ -96,8 +101,6 @@ public class Game : MonoBehaviour {
     {
         try
         {
-            AudioSource mySpeech = gameObject.AddComponent<AudioSource>();
-            mySpeech.loop = false;
             mySpeech.clip = clips[textIndex];
             mySpeech.Play();
         }
@@ -110,6 +113,11 @@ public class Game : MonoBehaviour {
         
         while (LettersOnScreen() <= maxTotalLettersOnMultipleWords && currentWords.Count <= letterPrefabs.Length)
         {
+            if (currentWordIndex < words.Count - 1)
+            {
+                if (currentWords.Count>=1&&words[currentWordIndex + 1].Length + LettersOnScreen() > maxTotalLettersOnMultipleWords)
+                    break;
+            }
             bool flag=MakeWord();
             if (flag && !gameOver)
             {
@@ -118,9 +126,11 @@ public class Game : MonoBehaviour {
                 
             }
             if (currentWords.Count>=letterPrefabs.Length)
-                return;
+                break;
 
         }
+        if (currentWords.Count == 1)
+            currentWords[0].originInRatio = new Vector2(0.5f, 0.5f);
     }
 
     protected int LettersOnScreen()
@@ -130,4 +140,20 @@ public class Game : MonoBehaviour {
             sum += w.word.Length;
         return sum;
     }
+
+    public float Progress()
+    {
+        try { int wordsCurrentlyNotEnded = 0;
+            foreach (Word w in currentWords)
+            {
+                if (!w.IsEnded()) wordsCurrentlyNotEnded++;
+            }
+            return (currentWordIndex - wordsCurrentlyNotEnded) / (float)words.Count; }
+        catch { return currentWordIndex/(float)words.Count; }
+        //return currentChar / (float)texts[textIndex].text.Length;
+    }
+
+    public float GetTime() { return gameTime; }
+    public bool isEnded() { return gameOver;  }
+    public bool readyToDestroy() { return gameOver && mySpeech && !mySpeech.isPlaying; }
 }

@@ -221,6 +221,6 @@ public class Word : MonoBehaviour {
     public bool IsEnded()
     {
         Letter l = transform.GetChild(transform.childCount - 1).GetComponent<Letter>();
-        return l.myState==Letter.LetterState.TheEnd&&!l.myBubble.enabled;
+        return l.IsEnded();//l.myState==Letter.LetterState.TheEnd&&!l.myBubble.enabled;
     }
 }
