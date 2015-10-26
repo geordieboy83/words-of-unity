@@ -1,20 +1,22 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 public class Background : MonoBehaviour {
 
-    //protected MovieTexture myVideo;
+    public GameObject rightBorder;
 
 	// Use this for initialization
 	void Start () {
-        //myVideo= (MovieTexture) GetComponent<Renderer>().material.mainTexture;
-        //myVideo.loop = true;
-        //myVideo.Play();
 
-        float videoAspect = 16 / 9f;//myVideo.width / (float)myVideo.height;
+        float videoAspect = 16 / 9f;
         float screenAspect = Screen.width / (float)Screen.height;
         float shift = (1-screenAspect/videoAspect) * transform.localScale.x / 2;
+        //Shift left if screen is narrower than 16/9.
         transform.position += new Vector3(shift, 0, 0);
+        //But now we need to shift the right border too!
+        if (rightBorder)
+        {
+            rightBorder.transform.position -= new Vector3(2 * shift, 0, 0);
+        }
     }
 
     // Update is called once per frame

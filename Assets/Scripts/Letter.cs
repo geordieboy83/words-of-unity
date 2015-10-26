@@ -117,7 +117,7 @@ public class Letter : MonoBehaviour {
 
     public void OnMouseDrag()
     {
-        if (myState != LetterState.Soaring/*||myState!=LetterState.Frozen*/) return;
+        if (!myWord.isReady||myState != LetterState.Soaring/*||myState!=LetterState.Frozen*/) return;
         //Debug.Log("OnMouseDrag");
         /*if (myState == LetterState.Frozen)
         {
