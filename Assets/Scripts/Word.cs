@@ -13,6 +13,7 @@ public class Word : MonoBehaviour {
     public int maxWordLength = 15;
     public AudioClip[] startSFX, popSFX;
     public bool isReady = false;
+    public bool interactable = true;
 
     // Use this for initialization
     IEnumerator Start () {
@@ -87,6 +88,7 @@ public class Word : MonoBehaviour {
         
 
         isReady = true;
+        if (!interactable) StartCoroutine("OnCorrect");
 	}
 
     
@@ -169,22 +171,24 @@ public class Word : MonoBehaviour {
             transform.GetChild(i).GetComponent<Letter>().Return();
             //.GetComponent<Rigidbody>().isKinematic = true;
         }
+        if (!interactable) yield break;
         while (transform.GetChild(transform.childCount - 1).GetComponent<Letter>().myState != Letter.LetterState.TheEnd)
         {           
             yield return null;
         }
 
         yield return new WaitForSeconds(2);
-        for (int i = 0; i < transform.childCount-1; i++)
-        {
-            Letter l = transform.GetChild(i).GetComponent<Letter>();
-            l.Pop();
-            yield return new WaitForSeconds(l.animationLength / 2);
-            //.GetComponent<Rigidbody>().isKinematic = true;
-        }
-        Letter finalL= transform.GetChild(transform.childCount-1).GetComponent<Letter>();
-        yield return new WaitForSeconds(2*finalL.animationLength);
-        finalL.Pop();
+        //for (int i = 0; i < transform.childCount-1; i++)
+        //{
+        //    Letter l = transform.GetChild(i).GetComponent<Letter>();
+        //    l.Pop();
+        //    yield return new WaitForSeconds(l.animationLength / 2);
+        //    //.GetComponent<Rigidbody>().isKinematic = true;
+        //}
+        //Letter finalL= transform.GetChild(transform.childCount-1).GetComponent<Letter>();
+        //yield return new WaitForSeconds(2*finalL.animationLength);
+        //finalL.Pop();
+        Pop();
     }
 
     public bool Check()
@@ -222,5 +226,24 @@ public class Word : MonoBehaviour {
     {
         Letter l = transform.GetChild(transform.childCount - 1).GetComponent<Letter>();
         return l.IsEnded();//l.myState==Letter.LetterState.TheEnd&&!l.myBubble.enabled;
+    }
+
+    public void Pop()
+    {
+        StartCoroutine("OnPop");
+    }
+
+    IEnumerator OnPop()
+    {
+        for (int i = 0; i < transform.childCount - 1; i++)
+        {
+            Letter l = transform.GetChild(i).GetComponent<Letter>();
+            l.Pop();
+            yield return new WaitForSeconds(l.animationLength / 2);
+            //.GetComponent<Rigidbody>().isKinematic = true;
+        }
+        Letter finalL = transform.GetChild(transform.childCount - 1).GetComponent<Letter>();
+        yield return new WaitForSeconds(2 * finalL.animationLength);
+        finalL.Pop();
     }
 }

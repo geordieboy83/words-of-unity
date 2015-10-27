@@ -107,7 +107,6 @@ public class Letter : MonoBehaviour {
 
     public void OnMouseDown()
     {
-        //Debug.Log("OnMouseDown");
         if (myState == LetterState.Frozen)
         {
             StopCoroutine("Freeze");
@@ -117,45 +116,17 @@ public class Letter : MonoBehaviour {
 
     public void OnMouseDrag()
     {
-        if (!myWord.isReady||myState != LetterState.Soaring/*||myState!=LetterState.Frozen*/) return;
-        //Debug.Log("OnMouseDrag");
-        /*if (myState == LetterState.Frozen)
-        {
-            StopCoroutine("Freeze");
-            myState = LetterState.Soaring;
-        }*/
+        if (!myWord.isReady||myState != LetterState.Soaring) return;
         myBubble.GetComponent<Rigidbody>().isKinematic = true;        
         Vector3 mouse = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         transform.position = new Vector3(mouse.x, mouse.y, transform.position.z);
     }
 
-    public void OnMouseEnter()
-    {
-        //Debug.Log("OnMouseEnter");
-    }
-
-    public void OnMouseExit()
-    {
-        //Debug.Log("OnMouseExit");
-    }
-
-    public void OnMouseUp()
-    {
-        //Debug.Log("OnMouseUp");
-    }
-
     public void OnMouseUpAsButton()
     {
-        //Debug.Log("OnMouseUpAsButton");
         if (myWord)
             myWord.Assess();
-        //myBubble.GetComponent<Rigidbody>().isKinematic = false;
         StartCoroutine("Freeze", freezeSeconds);
-    }
-
-    public void OnMouseOver()
-    {
-        //Debug.Log("OnMouseOver");
     }
 
     public void Return()

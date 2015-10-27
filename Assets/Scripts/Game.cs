@@ -58,6 +58,12 @@ public class Game : MonoBehaviour {
             myMusic.clip = backgroundMusic[musicIndex++ % backgroundMusic.Length];
             myMusic.Play();
         }
+
+        if (currentWordIndex >= words.Count && currentWords.Count == 0)
+        {
+            gameOver = true;
+            OnGameOver();
+        }
 	
 	}
     
@@ -65,10 +71,8 @@ public class Game : MonoBehaviour {
     public bool MakeWord()
     {
         currentWordIndex++;
-        if (words.Count <= currentWordIndex&&currentWords.Count==0)
+        if (gameOver||words.Count <= currentWordIndex)
         {
-            gameOver = true;
-            OnGameOver();
             return false;
         }
 
@@ -118,13 +122,15 @@ public class Game : MonoBehaviour {
                 if (currentWords.Count>=1&&words[currentWordIndex + 1].Length + LettersOnScreen() > maxTotalLettersOnMultipleWords)
                     break;
             }
-            bool flag=MakeWord();
-            if (flag && !gameOver)
+            
+            if (MakeWord())
             {
-                currentWords[currentWords.Count - 1].letterPrefab = letterPrefabs[(currentWords.Count - 1)%letterPrefabs.Length];
+                currentWords[currentWords.Count - 1].letterPrefab = letterPrefabs[(currentWords.Count - 1) % letterPrefabs.Length];
                 currentWords[currentWords.Count - 1].originInRatio = wordSpawnPoints[(currentWords.Count - 1) % wordSpawnPoints.Length];
-                
+
             }
+            else if (currentWordIndex>=words.Count)
+                return;
             if (currentWords.Count>=letterPrefabs.Length)
                 break;
 
@@ -156,4 +162,6 @@ public class Game : MonoBehaviour {
     public float GetTime() { return gameTime; }
     public bool isEnded() { return gameOver;  }
     public bool readyToDestroy() { return gameOver && mySpeech && !mySpeech.isPlaying; }
+    public int GetCurrentWord() { return Mathf.Min(currentWordIndex + 1,words.Count); }
+    public int GetTotalWords() { return words.Count; }
 }
