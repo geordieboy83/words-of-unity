@@ -10,7 +10,6 @@ public class Word : MonoBehaviour {
     protected bool scattered = false;
     protected List<Vector4> scatteredLetters=new List<Vector4>();
     public float freezeLengthPerLevel= 0.5f;
-    public int maxWordLength = 15;
     public AudioClip[] startSFX, popSFX;
     public bool isReady = false;
     public bool interactable = true;
@@ -18,7 +17,6 @@ public class Word : MonoBehaviour {
     // Use this for initialization
     IEnumerator Start () {
         if (word == "" || !letterPrefab) yield break;
-        //word=word.Substring(0, maxWordLength);
         Vector3 origin = Camera.main.ScreenToWorldPoint(new Vector3(originInRatio.x * Screen.width, originInRatio.y * Screen.height));
         origin.z = 0;
         List<Vector3> positionCircular = new List<Vector3>(), positionHorizontal = new List<Vector3>();
@@ -52,10 +50,7 @@ public class Word : MonoBehaviour {
             positionHorizontal[i].Scale(transform.localScale);
             newPosition.Scale(transform.localScale);
 
-            letter.transform.position =
-                //origin; 
-                //new Vector3(origin.x + (i - wordCStyle.Length / 2) * width+(wordCStyle.Length % 2==0?0.5f*width:0), origin.y, 0);
-                newPosition;
+            letter.transform.position = newPosition;
 
             l.freezeSeconds = freezeLengthPerLevel *word.Length;
             try
@@ -91,13 +86,6 @@ public class Word : MonoBehaviour {
         if (!interactable) StartCoroutine("OnCorrect");
 	}
 
-    
-	
-	// Update is called once per frame
-	void Update () {
-        
-	}
-
     void CorrectScale(Vector3 bound, bool isAxisX)
     {
         Vector3 min = Camera.main.ScreenToWorldPoint(new Vector3(0, 0));
@@ -108,9 +96,7 @@ public class Word : MonoBehaviour {
             if (min.x > bound.x)
             {
                 Vector3 newScale = transform.localScale * (max.x - min.x) / (2 * (Mathf.Abs(Mathf.Abs(bound.x) - Mathf.Abs(min.x))) + (max.x - min.x));
-                //Vector3 oldScale = transform.localScale;
-                //float start = Time.time;
-                transform.localScale = newScale;// Vector3.Lerp(oldScale, newScale, Time.time - start);
+                transform.localScale = newScale;
             }
         }
         else
@@ -118,9 +104,7 @@ public class Word : MonoBehaviour {
             if (max.y < bound.y)
             {
                 Vector3 newScale = transform.localScale * (max.y - min.y) / (2 * (Mathf.Abs(Mathf.Abs(bound.y) - Mathf.Abs(max.y))) + (max.y - min.y));
-                //Vector3 oldScale = transform.localScale;
-                //float start = Time.time;
-                transform.localScale = newScale;// Vector3.Lerp(oldScale, newScale, Time.time - start);
+                transform.localScale = newScale;
             }
         }
 
@@ -143,25 +127,8 @@ public class Word : MonoBehaviour {
         scatteredLetters.Sort(CompareHorizontal);
         if (Check())
         {
-            //Debug.Log("Horizontal");
-            //OnCorrect();
             StartCoroutine("OnCorrect");
-            return;
         }
-        /*scatteredLetters.Sort(CompareTopDown);
-        if (Check())
-        {
-            Debug.Log("TopDown");
-            OnCorrect();
-            return;
-        }
-        scatteredLetters.Sort(CompareBottomUp);
-        if (Check())
-        {
-            Debug.Log("BottomUp");
-            OnCorrect();
-            return;
-        }*/
     }
 
     public IEnumerator OnCorrect()
@@ -169,7 +136,6 @@ public class Word : MonoBehaviour {
         for (int i = 0; i < transform.childCount; i++)
         {
             transform.GetChild(i).GetComponent<Letter>().Return();
-            //.GetComponent<Rigidbody>().isKinematic = true;
         }
         if (!interactable) yield break;
         while (transform.GetChild(transform.childCount - 1).GetComponent<Letter>().myState != Letter.LetterState.TheEnd)
@@ -178,27 +144,15 @@ public class Word : MonoBehaviour {
         }
 
         yield return new WaitForSeconds(2);
-        //for (int i = 0; i < transform.childCount-1; i++)
-        //{
-        //    Letter l = transform.GetChild(i).GetComponent<Letter>();
-        //    l.Pop();
-        //    yield return new WaitForSeconds(l.animationLength / 2);
-        //    //.GetComponent<Rigidbody>().isKinematic = true;
-        //}
-        //Letter finalL= transform.GetChild(transform.childCount-1).GetComponent<Letter>();
-        //yield return new WaitForSeconds(2*finalL.animationLength);
-        //finalL.Pop();
         Pop();
     }
 
     public bool Check()
     {
-        //string s = "";
         for (int i = 0; i < scatteredLetters.Count; i++)
-            //s += (char)scatteredLetters[i].w;
             if ((char)scatteredLetters[i].w != word[i])
                 return false;
-        return true;//s == word;
+        return true;
     }
 
     public int CompareHorizontal(Vector4 x, Vector4 y)
@@ -225,7 +179,7 @@ public class Word : MonoBehaviour {
     public bool IsEnded()
     {
         Letter l = transform.GetChild(transform.childCount - 1).GetComponent<Letter>();
-        return l.IsEnded();//l.myState==Letter.LetterState.TheEnd&&!l.myBubble.enabled;
+        return l.IsEnded();
     }
 
     public void Pop()
@@ -240,7 +194,6 @@ public class Word : MonoBehaviour {
             Letter l = transform.GetChild(i).GetComponent<Letter>();
             l.Pop();
             yield return new WaitForSeconds(l.animationLength / 2);
-            //.GetComponent<Rigidbody>().isKinematic = true;
         }
         Letter finalL = transform.GetChild(transform.childCount - 1).GetComponent<Letter>();
         yield return new WaitForSeconds(2 * finalL.animationLength);

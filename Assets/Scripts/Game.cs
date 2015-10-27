@@ -156,7 +156,6 @@ public class Game : MonoBehaviour {
             }
             return (currentWordIndex - wordsCurrentlyNotEnded) / (float)words.Count; }
         catch { return currentWordIndex/(float)words.Count; }
-        //return currentChar / (float)texts[textIndex].text.Length;
     }
 
     public float GetTime() { return gameTime; }
@@ -164,5 +163,5 @@ public class Game : MonoBehaviour {
     public bool readyToDestroy() { return gameOver && mySpeech && !mySpeech.isPlaying; }
     public int GetCurrentWord() { return Mathf.Min(currentWordIndex + 1,words.Count); }
     public int GetTotalWords() { return words.Count; }
-    public void ForceGameOver() { gameOver = true; try { foreach (Word w in currentWords) w.Pop(); } catch { } }
+    public void ForceGameOver() { gameOver = true; try { foreach (Word w in currentWords) if(w)Destroy(w.gameObject); } catch { } }
 }

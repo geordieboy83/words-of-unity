@@ -24,13 +24,4 @@ public class CreditsUI : MonoBehaviour {
         backButton.onClick.Invoke();
     } 
 
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
 }
