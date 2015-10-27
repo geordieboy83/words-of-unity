@@ -2,6 +2,7 @@
 using System.Collections;
 
 public class CreditsUI : MonoBehaviour {
+    // Credits UI handler
 
     public float animationLength = 30;
     public Vector2 from, to;
@@ -12,7 +13,8 @@ public class CreditsUI : MonoBehaviour {
     {
         StartCoroutine("Scroll");
     }
-
+    
+    //Scroll text
     IEnumerator Scroll()
     {
         float start = Time.time;

@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 
 public class InGameUI : MonoBehaviour {
+    //In-game UI handler
 
     public GameObject gamePrefab;
     public Slider progress;
@@ -24,9 +25,7 @@ public class InGameUI : MonoBehaviour {
         time.text = "";
 
     }
-
-
-	// Update is called once per frame
+    
 	void Update () {
         if (!game||destroying)
             return;
@@ -51,6 +50,8 @@ public class InGameUI : MonoBehaviour {
         }
     }
 
+
+    //Progress slider
     IEnumerator AnimateSlider(float newValue)
     {
         float start = Time.time;
@@ -64,6 +65,7 @@ public class InGameUI : MonoBehaviour {
         animating = false;
     }
 
+    //Destroy Game
     IEnumerator WrapUpAndDestroyGame()
     {
         destroying = true;

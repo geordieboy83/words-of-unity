@@ -3,6 +3,8 @@ using UnityEngine.UI;
 using System.Collections;
 
 public class MainMenuUI : MonoBehaviour {
+    //Main Menu handler.    
+
     public GameObject wordPrefab;
     public string[] title;
     public Vector2[] origins;
@@ -15,6 +17,7 @@ public class MainMenuUI : MonoBehaviour {
 
     void OnEnable()
     {
+        //Uses game words, rather than UI assets, for the title.
         words = new Word[title.Length];
         buttonsPanel.anchoredPosition = buttonsPanelFrom;
         logo.transform.localScale = Vector3.zero;
@@ -35,6 +38,7 @@ public class MainMenuUI : MonoBehaviour {
         
     }
 
+    //Animate in
     IEnumerator OnAppear()
     {
         bool flag = false;
@@ -58,8 +62,7 @@ public class MainMenuUI : MonoBehaviour {
         }
     }
 
-    // Update is called once per frame
-	void Update () {
+    void Update () {
         if (Input.GetKeyUp(KeyCode.Escape))
             Application.Quit();
 	}
@@ -69,6 +72,7 @@ public class MainMenuUI : MonoBehaviour {
         StartCoroutine("StartGame");
     }
 
+    //Animate Out
     IEnumerator StartGame()
     {
         foreach(Word w in words)

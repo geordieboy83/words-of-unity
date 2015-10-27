@@ -1,6 +1,11 @@
 ﻿using UnityEngine;
 
 public class Background : MonoBehaviour {
+    //This class controls the background.
+    //Makes sure the Millenium Bridge is always visible, no matter what the aspect ratio.
+    //For this, the background is shifted accordingly to the right.
+    //Also the background's right border is shifted to the left, so that the scattered letters
+    //never go out of the screen.
 
     public GameObject rightBorder;
 

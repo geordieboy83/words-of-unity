@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class Letter : MonoBehaviour {
+    //Letter class
+
     public enum LetterState { Appearing, Soaring, Frozen, Returning, TheEnd};
     public Word myWord;
     public TextMesh myText;
@@ -39,6 +41,7 @@ public class Letter : MonoBehaviour {
         StartCoroutine("UpdateAppearing");
     }
 	
+    //Letter appearance animation
 	 IEnumerator UpdateAppearing()
     {
         float start = Time.time;
@@ -52,6 +55,7 @@ public class Letter : MonoBehaviour {
         yield break;
     }
 
+    //Letter final animation
     IEnumerator UpdateReturning()
     {
 
@@ -84,6 +88,7 @@ public class Letter : MonoBehaviour {
         yield break;
     }
 
+    //Bubble physics!
     IEnumerator UpdateSoaring()
     {
         while (true)
@@ -95,16 +100,19 @@ public class Letter : MonoBehaviour {
 
     }
 
+    // Rotate around the y axis
     void Update () {
         Vector3 bubbleRotation = bubbleAxis * ((Time.time * rotationFactor));
         myBubble.transform.rotation = Quaternion.Euler(bubbleRotation.x,bubbleRotation.y,bubbleRotation.z);        
 	}
 
+    // Make sure the letter stays the same no matter what the bubble rotation!
     void LateUpdate()
     {
         myText.transform.rotation = textRotation0;
     }
 
+    // Freeze letter on touch
     public void OnMouseDown()
     {
         if (myState == LetterState.Frozen)
@@ -114,6 +122,7 @@ public class Letter : MonoBehaviour {
         }
     }
 
+    // Move letter
     public void OnMouseDrag()
     {
         if (!myWord.isReady||myState != LetterState.Soaring) return;
@@ -122,6 +131,7 @@ public class Letter : MonoBehaviour {
         transform.position = new Vector3(mouse.x, mouse.y, transform.position.z);
     }
 
+    // Check if the respective word has all its letters in the right order
     public void OnMouseUpAsButton()
     {
         if (myWord)
@@ -129,6 +139,7 @@ public class Letter : MonoBehaviour {
         StartCoroutine("Freeze", freezeSeconds);
     }
 
+    // Trigger return animation
     public void Return()
     {
         myBubble.GetComponent<Rigidbody>().isKinematic = true;
@@ -138,6 +149,7 @@ public class Letter : MonoBehaviour {
         StartCoroutine("UpdateReturning");        
     }
 
+    // Freeze letter - pretend from moving for a bit
     IEnumerator Freeze(float seconds)
     {
         myState = LetterState.Frozen;
@@ -146,12 +158,14 @@ public class Letter : MonoBehaviour {
         Unfreeze();
     }
 
+    // Unfreeze letter
     public void Unfreeze()
     {
         myBubble.GetComponent<Rigidbody>().isKinematic = false;
         myState = LetterState.Soaring;
     }
 
+    // Pop the bubble!
     public void Pop()
     {
         if (myAudio && SFXPop)
@@ -165,6 +179,7 @@ public class Letter : MonoBehaviour {
 
     }
 
+    // Is the letter ready to destroy?
     public bool IsEnded()
     {
         bool flag= myState == Letter.LetterState.TheEnd && !myBubble.enabled;
