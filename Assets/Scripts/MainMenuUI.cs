@@ -18,6 +18,8 @@ public class MainMenuUI : MonoBehaviour {
         words = new Word[title.Length];
         buttonsPanel.anchoredPosition = buttonsPanelFrom;
         logo.transform.localScale = Vector3.zero;
+        howToPlayMenu.SetActive(false);
+        creditsMenu.SetActive(false);
         for (int i=0; i<words.Length; i++)
         {
             
@@ -79,6 +81,15 @@ public class MainMenuUI : MonoBehaviour {
             while (!w.IsEnded())
                 yield return null;
         }
+
+        float start = Time.time;
+        while (Time.time < start + animationLength)
+        {
+            logo.transform.localScale = Vector3.Lerp(Vector3.one, Vector3.zero, (Time.time - start) / animationLength);
+            buttonsPanel.anchoredPosition = Vector3.Lerp(buttonsPanelTo, buttonsPanelFrom, (Time.time - start) / animationLength);
+            yield return null;
+        }
+
         inGameMenu.SetActive(true);
         gameObject.SetActive(false);
     }
