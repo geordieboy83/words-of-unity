@@ -20,6 +20,7 @@ public class MainMenuUI : MonoBehaviour {
         logo.transform.localScale = Vector3.zero;
         howToPlayMenu.SetActive(false);
         creditsMenu.SetActive(false);
+        inGameMenu.SetActive(false);
         for (int i=0; i<words.Length; i++)
         {
             
@@ -65,7 +66,8 @@ public class MainMenuUI : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	
+        if (Input.GetKeyUp(KeyCode.Escape))
+            Application.Quit();
 	}
 
     public void OnPlay()
@@ -90,17 +92,11 @@ public class MainMenuUI : MonoBehaviour {
             yield return null;
         }
 
+        foreach (Word w in words)
+            Destroy(w.gameObject);
         inGameMenu.SetActive(true);
         gameObject.SetActive(false);
     }
 
-    public void OnHowToPlay()
-    {
-
-    }
-
-    public void OnCredits()
-    {
-
-    }
+   
 }

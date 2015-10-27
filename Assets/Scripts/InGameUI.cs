@@ -44,6 +44,11 @@ public class InGameUI : MonoBehaviour {
                 
             }
         }
+
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            StartCoroutine("WrapUpAndDestroyGame");
+        }
     }
 
     IEnumerator AnimateSlider(float newValue)
@@ -62,6 +67,7 @@ public class InGameUI : MonoBehaviour {
     IEnumerator WrapUpAndDestroyGame()
     {
         destroying = true;
+        game.ForceGameOver();
         float start = Time.time;
         while (Time.time - start <= animationLength) {
             game.myMusic.volume = Mathf.Lerp(1, 0, ((Time.time - start) / animationLength));
